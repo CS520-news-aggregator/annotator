@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,8 +7,19 @@ from utils import subscribe_to_publisher
 import os
 
 
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    subscribe_to_publisher(
+        os.getenv("SUBSCRIBER_IP", "localhost"),
+        8020,
+        os.getenv("PUBLISHER_IP", "localhost"),
+        8010,
+    )
+    yield
+
+
 origins = ["*"]
-app = FastAPI(title="News Annotator", version="1.0")
+app = FastAPI(title="News Annotator", version="1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,10 +38,4 @@ async def root():
 
 
 if __name__ == "__main__":
-    subscribe_to_publisher(
-        os.getenv("SUBSCRIBER_IP", "localhost"),
-        8020,
-        os.getenv("PUBLISHER_IP", "localhost"),
-        8010,
-    )
     uvicorn.run("main:app", host="0.0.0.0", port=8020, reload=True, workers=1)
