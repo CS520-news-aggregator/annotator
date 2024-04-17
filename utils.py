@@ -2,6 +2,7 @@ import os
 from fastapi.encoders import jsonable_encoder
 import requests
 
+DB_HOST = os.getenv("DB_HOST", "localhost")
 
 def subscribe_to_publisher(
     subscriber_ip, subscriber_port, publisher_ip, publisher_port
@@ -23,9 +24,7 @@ def subscribe_to_publisher(
 
 
 def add_data_to_db(annotation_data):
-    DB_HOST = os.getenv("DB_HOST", "localhost")
     db_url = f"http://{DB_HOST}:8000/annotator/add-annotation"
-
     encountered_error = False
 
     try:
@@ -40,3 +39,21 @@ def add_data_to_db(annotation_data):
 
     resp_json = response.json() if not encountered_error else None
     return -1 if encountered_error else resp_json["annotation_id"]
+
+
+def get_data_from_db(post_id):
+    db_url = f"http://{DB_HOST}:8000/aggregator/get-aggregation?post_id={post_id}"
+    encountered_error = False
+
+    try:
+        response = requests.get(db_url, timeout=5)
+    except requests.exceptions.RequestException:
+        print(f"Could not get data from database service due to timeout")
+        encountered_error = True
+    else:
+        if response.status_code != 200:
+            print(f"Received status code {response.status_code} from database service")
+            encountered_error = True
+
+    resp_json = response.json() if not encountered_error else None
+    return resp_json if not encountered_error else None
