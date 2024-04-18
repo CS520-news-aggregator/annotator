@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from routers.subscriber import subscriber_router
-from utils import subscribe_to_publisher
+from annotator.utils.funcs import subscribe_to_publisher
 import os
 
 

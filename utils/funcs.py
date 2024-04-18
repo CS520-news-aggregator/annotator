@@ -1,8 +1,7 @@
-import os
 from fastapi.encoders import jsonable_encoder
 import requests
+from utils.constants import DB_HOST
 
-DB_HOST = os.getenv("DB_HOST", "localhost")
 
 def subscribe_to_publisher(
     subscriber_ip, subscriber_port, publisher_ip, publisher_port
@@ -28,7 +27,9 @@ def add_data_to_db(annotation_data):
     encountered_error = False
 
     try:
-        response = requests.post(db_url, json=jsonable_encoder(annotation_data), timeout=5)
+        response = requests.post(
+            db_url, json=jsonable_encoder(annotation_data), timeout=5
+        )
     except requests.exceptions.RequestException:
         print(f"Could not send data to database service due to timeout")
         encountered_error = True
