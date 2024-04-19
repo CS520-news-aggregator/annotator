@@ -1,10 +1,11 @@
 from contextlib import asynccontextmanager
+import os
+import sys
 from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from routers.subscriber import subscriber_router
-from annotator.utils.funcs import subscribe_to_publisher
-import os
+from utils.funcs import subscribe_to_publisher
 
 
 @asynccontextmanager
@@ -37,5 +38,15 @@ async def root():
     return {"Hello": "World"}
 
 
+def debug():
+    from analysis.scraper.extract import ScrapeWebsite
+
+    article = ScrapeWebsite("https://en.wikipedia.org/wiki/Spanning_Tree_Protocol")
+    print(article.sentences)
+
+
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8020, reload=True, workers=1)
+    if len(sys.argv) > 1 and sys.argv[1] == "debug":
+        debug()
+    else:
+        uvicorn.run("main:app", host="0.0.0.0", port=8020, reload=True, workers=1)

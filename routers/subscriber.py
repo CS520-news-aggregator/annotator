@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Request
 from models.subscribe import Message
-from annotator.utils.funcs import add_data_to_db, get_data_from_db
+from utils.funcs import add_data_to_db, get_data_from_db
 from models.data import Annotation, Post
 
 subscriber_router = APIRouter(prefix="/subscriber")
