@@ -39,10 +39,27 @@ async def root():
 
 
 def debug():
+    from analysis.bundle.clustering import cluster_by_topic
     from analysis.scraper.extract import ScrapeWebsite
 
-    article = ScrapeWebsite("https://en.wikipedia.org/wiki/Spanning_Tree_Protocol")
-    print(article.sentences)
+    list_links = [
+        "https://www.cnn.com/2024/04/20/politics/mike-johnson-ukraine-aid-russia-zelensky-putin/index.html",
+        "https://www.foxnews.com/politics/nothing-more-backwards-than-us-funding-ukraine-border-security-but-not-our-own-conservatives-say",
+        "https://www.bbc.com/news/world-us-canada-68848277",
+        "https://www.cnn.com/2024/04/20/weather/dubai-flood-rain-life-halts-weather-intl/index.html",
+        "https://www.bbc.com/news/world-middle-east-68864207",
+        "https://www.bbc.com/news/entertainment-arts-68863614",
+        "https://www.cnn.com/2024/04/19/opinions/mother-daughter-taylor-swift-experience-the-tortured-poets-department-bass/index.html",
+    ]
+
+    list_documents = [ScrapeWebsite(link).return_article() for link in list_links]
+
+    cluster_topics, idx_to_topic = cluster_by_topic(
+        list_documents, num_clusters=len(list_links), num_topics=5
+    )
+
+    print(cluster_topics)
+    print(idx_to_topic)
 
 
 if __name__ == "__main__":
