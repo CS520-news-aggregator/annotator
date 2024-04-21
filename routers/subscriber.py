@@ -7,6 +7,7 @@ from analysis.scraper.extract import ScrapeWebsite
 from analysis.bundle.clustering import cluster_by_topic
 
 subscriber_router = APIRouter(prefix="/subscriber")
+MODEL_NAME = "lda"
 
 
 @subscriber_router.post("/update")
@@ -34,10 +35,11 @@ def process_posts(list_post_ids: list[str]):
         post = Post(**post_data["post"])
 
         article = ScrapeWebsite(post.link)
-        documents.append(article.return_article())
+        if article_content := article.return_article():
+            documents.append(article_content)
 
     cluster_topics, idx_to_topic = cluster_by_topic(
-        documents, num_clusters=len(list_post_ids), num_topics=5
+        MODEL_NAME, documents, num_clusters=len(list_post_ids)
     )
 
     for cluster_idx, list_posts in cluster_topics.items():
