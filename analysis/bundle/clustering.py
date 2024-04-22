@@ -3,6 +3,7 @@ from analysis.bundle.preprocess import preprocess
 from analysis.bundle.models.base_model import BaseModel
 from analysis.bundle.models.lda import LDAModel
 from analysis.bundle.models.lsi import LSIModel
+from analysis.bundle.models.bert.bert_topic import BERTModel
 
 # TODO - Use BERTopic for clustering
 # from bertopic import BERTopic

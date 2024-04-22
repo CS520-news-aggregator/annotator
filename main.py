@@ -56,7 +56,7 @@ def debug():
     list_documents = [doc for doc in list_documents if doc]
 
     cluster_topics, idx_to_topic = cluster_by_topic(
-        "lda", list_documents, num_clusters=len(list_links)
+        "bert", list_documents, num_clusters=len(list_links)
     )
 
     print(cluster_topics)
