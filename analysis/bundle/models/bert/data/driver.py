@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 FILE_DIR = os.path.dirname(__file__)
-PATH_TO_DB = f"{FILE_DIR}/all-the-news.db"
+PATH_TO_DB = os.path.join(FILE_DIR, "all-the-news.db")
 
 
 # Source: https://components.one/datasets/all-the-news-articles-dataset/
