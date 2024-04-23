@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 
 class Annotation(BaseModel):
-    post_id: str
-    list_topics: List[str]
+    post_ids: List[str]
+    topics: List[str]
 
 
 class Post(BaseModel):

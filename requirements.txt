@@ -14,3 +14,12 @@ starlette==0.37.2
 typing_extensions==4.11.0
 urllib3==2.2.1
 uvicorn==0.29.0
+readability-lxml==0.8.1
+nltk==3.8.1
+lxml_html_clean==0.1.1
+scipy==1.12
+spacy==3.7.4
+gensim==4.3.2
+tqdm==4.66.2
+nltk==3.8.1
+bertopic==0.16.0
