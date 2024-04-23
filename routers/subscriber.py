@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Body, Request, BackgroundTasks
 from tqdm import tqdm
-from models.subscribe import Message
+from models.pub_sub import Message
 from utils.funcs import add_data_to_db, get_data_from_db
-from models.data import Post, Source
+from models.post import Post
+from models.source import Source
 from analysis.scraper.extract import ScrapeWebsite
 from analysis.bundle.clustering import cluster_by_topic
 
