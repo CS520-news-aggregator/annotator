@@ -69,7 +69,10 @@ def debug():
     # create_news_dataset_model()
 
     add_model_to_ollama()
-    from analysis.summarizer.test import chain
+    from analysis.summarizer.ollama.calls import generate_text_from_ollama
+
+    response = generate_text_from_ollama("The world is")
+    print(response)
 
 
 if __name__ == "__main__":
