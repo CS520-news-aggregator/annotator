@@ -12,7 +12,7 @@ get_class = lambda x: globals()[x]
 
 
 def cluster_by_topic(model_name: str, documents: List[str], num_clusters: int):
-    processed_docs = [preprocess(doc) for doc in documents]
+    processed_docs = [preprocess(doc) for doc in documents] if model_name != 'bert' else documents
     model: BaseModel = get_class(f"{model_name.upper()}Model")(
         processed_docs, num_clusters
     )

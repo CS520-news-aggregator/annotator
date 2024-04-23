@@ -18,10 +18,11 @@ class BERTModel(BaseModel):
 
     def create_vector(self, document: str) -> List[float]:
         # Do not need vector for BERTopic
-        return super().create_vector(document)
+        return document
 
     def cluster(self) -> tuple[dict[int, List[int]], dict[int, List[str]]]:
-        topics, probs = self.bert_model.fit(self.documents)
+        topics, probs = self.bert_model.transform(self.documents)
         print(f"Topics: {topics}")
         print(f"Probabilities: {probs}")
+        import pdb;pdb.set_trace()
         raise NotImplementedError("cluster method is not completely implemented")
