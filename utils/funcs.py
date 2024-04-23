@@ -22,13 +22,13 @@ def subscribe_to_publisher(
         print("Failed to subscribe to publisher,", response.json())
 
 
-def add_data_to_db(annotation_data):
-    db_url = f"http://{DB_HOST}:8000/annotator/add-annotation"
+def add_data_to_db(post_data):
+    db_url = f"http://{DB_HOST}:8000/annotator/add-post"
     encountered_error = False
 
     try:
         response = requests.post(
-            db_url, json=jsonable_encoder(annotation_data), timeout=5
+            db_url, json=jsonable_encoder(post_data), timeout=5
         )
     except requests.exceptions.RequestException:
         print(f"Could not send data to database service due to timeout")
@@ -39,11 +39,11 @@ def add_data_to_db(annotation_data):
             encountered_error = True
 
     resp_json = response.json() if not encountered_error else None
-    return -1 if encountered_error else resp_json["annotation_id"]
+    return -1 if encountered_error else resp_json["post_id"]
 
 
-def get_data_from_db(post_id):
-    db_url = f"http://{DB_HOST}:8000/aggregator/get-aggregation?post_id={post_id}"
+def get_data_from_db(source_id):
+    db_url = f"http://{DB_HOST}:8000/aggregator/get-aggregation?source_id={source_id}"
     encountered_error = False
 
     try:

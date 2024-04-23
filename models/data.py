@@ -2,12 +2,12 @@ from typing import List
 from pydantic import BaseModel
 
 
-class Annotation(BaseModel):
-    post_ids: List[str]
+class Post(BaseModel):
+    source_ids: List[str]
     topics: List[str]
 
 
-class Post(BaseModel):
+class Source(BaseModel):
     title: str = "Unknown Title"
     link: str = "Unknown Link"
     media: str = "Unknown Media"

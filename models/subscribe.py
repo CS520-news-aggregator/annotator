@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 
 class Message(BaseModel):
-    post_ids: List[str]
+    source_ids: List[str]
     message: str
