@@ -1,6 +1,7 @@
 import os
 
 DB_HOST = os.getenv("DB_HOST", "localhost")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost")
 
 LIST_TOPICS = [
     "World News",

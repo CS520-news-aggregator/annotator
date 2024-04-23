@@ -27,9 +27,7 @@ def add_data_to_db(post_data):
     encountered_error = False
 
     try:
-        response = requests.post(
-            db_url, json=jsonable_encoder(post_data), timeout=5
-        )
+        response = requests.post(db_url, json=jsonable_encoder(post_data), timeout=5)
     except requests.exceptions.RequestException:
         print(f"Could not send data to database service due to timeout")
         encountered_error = True
