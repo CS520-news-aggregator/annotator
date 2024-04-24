@@ -61,9 +61,7 @@ def start_summarization(summary_query: SummaryQuery):
             post_id=summary_query.post_id,
             summary=summary_text,
         )
-
-        print(summary)
-        # make_db_request("llm/add-summary", jsonable_encoder(summary))
+        make_db_request("llm/add-summary", jsonable_encoder(summary))
     else:
         print("Failed to generate summary")
 
