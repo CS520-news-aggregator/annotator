@@ -6,9 +6,11 @@ from models.post import Post
 from models.source import Source
 from analysis.scraper.extract import ScrapeWebsite
 from analysis.bundle.clustering import cluster_by_topic
+from routers.llm import start_summarization, start_title
+from models.llm import SummaryQuery, TitleQuery
 
 subscriber_router = APIRouter(prefix="/subscriber")
-MODEL_NAME = "lda"
+MODEL_NAME = "bert"
 
 
 @subscriber_router.post("/update")
@@ -39,11 +41,16 @@ def process_sources(list_source_ids: list[str]):
         if article_content := article.return_article():
             documents.append(article_content)
 
+    print("Clustering sources")
+
     cluster_topics, idx_to_topic = cluster_by_topic(
         MODEL_NAME, documents, num_clusters=len(list_source_ids)
     )
 
-    for cluster_idx, list_sources in cluster_topics.items():
+    for cluster_idx, list_sources in tqdm(
+        cluster_topics.items(),
+        desc="Processing clusters | Generating summaries and titles",
+    ):
         cluster_source_ids = []
 
         for source_idx in list_sources:
@@ -54,4 +61,14 @@ def process_sources(list_source_ids: list[str]):
             source_ids=cluster_source_ids,
             topics=idx_to_topic[cluster_idx],
         )
-        add_data_to_db(post)
+
+        post_id = str(post.id)
+        cur_documents = [documents[source_idx] for source_idx in list_sources]
+        text_content = ". ".join(cur_documents)
+
+        summary_query = SummaryQuery(text=text_content, post_id=post_id)
+        title_query = TitleQuery(text=text_content, post_id=post_id)
+
+        if add_data_to_db(post) != -1:
+            start_summarization(summary_query)
+            start_title(title_query)

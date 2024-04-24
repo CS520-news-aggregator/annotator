@@ -2,10 +2,12 @@ import requests
 from utils.constants import OLLAMA_HOST
 
 OLLAMA_MODEL = "orca-mini"
+OLLAMA_TIMEOUT = 15
 
 
 def generate_text_from_ollama(prompt: str):
     ollama_url = f"http://{OLLAMA_HOST}:11434/api/generate"
+    dynamic_timeout = OLLAMA_TIMEOUT + len(prompt)
 
     try:
         response = requests.post(
@@ -13,19 +15,19 @@ def generate_text_from_ollama(prompt: str):
             json={
                 "model": OLLAMA_MODEL,
                 "prompt": prompt,
-                "format": "json",
+                "raw": True,
                 "stream": False,
             },
-            timeout=5,
+            timeout=dynamic_timeout,
         )
     except requests.exceptions.RequestException as e:
         print("Could not generate text from Ollama", e)
-        return
-
-    if response.status_code == 200:
-        return response.json()
     else:
+        if response.status_code == 200:
+            return response.json()
         print("Failed to generate text from Ollama,", response.json())
+
+    return None
 
 
 def add_model_to_ollama():
@@ -35,7 +37,7 @@ def add_model_to_ollama():
         response = requests.post(
             ollama_url,
             json={"name": OLLAMA_MODEL, "stream": False},
-            timeout=5,
+            timeout=OLLAMA_TIMEOUT,
         )
     except requests.exceptions.RequestException as e:
         print("Could not add model to Ollama", e)
@@ -47,6 +49,7 @@ def add_model_to_ollama():
         print("Failed to add model to Ollama,", response.json())
 
 
-def parse_ollama_response(response_json):
+def parse_ollama_response(response_json: dict) -> str:
     response = response_json["response"]
-    import pdb; pdb.set_trace()
+    response = " ".join(response.replace("\n", " ").split())
+    return response
