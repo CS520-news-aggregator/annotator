@@ -3,21 +3,15 @@ from typing import List
 
 from analysis.bundle.models.base_model import BaseModel
 from analysis.bundle.models.bert.constants import BERT_MODEL_PATH
+from analysis.bundle.models.bert.train import load_model
 
 TOPIC_THRESHOLD = 0.3
 
 
 class BERTModel(BaseModel):
     def __init__(self, documents: List[str], num_clusters) -> None:
-        from bertopic import BERTopic
-        from sentence_transformers import SentenceTransformer
-        
         super().__init__(documents, num_clusters)
-
-        embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-        self.bert_model: BERTopic = BERTopic.load(
-            BERT_MODEL_PATH, embedding_model=embedding_model
-        )
+        self.bert_model = load_model(BERT_MODEL_PATH)
 
     def create_vector(self, document: str) -> List[float]:
         return document

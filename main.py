@@ -42,6 +42,23 @@ async def root():
     return {"Hello": "World"}
 
 
+def train_bert():
+    from analysis.bundle.models.bert.data.social_animal_driver import (
+        get_social_news_data,
+    )
+    from analysis.bundle.models.bert.train import create_model, save_model, load_model
+    from analysis.bundle.models.bert.constants import FILE_DIR
+    from bertopic import BERTopic
+
+    prev_topic_model = load_model(os.path.join(os.path.join(FILE_DIR, "saved_models"), "bert_model_all_news.bin"))
+
+    list_documents = get_social_news_data()
+    cur_topic_model = create_model(list_documents)
+
+    topic_model = BERTopic.merge_models([prev_topic_model, cur_topic_model])
+    save_model(topic_model)
+
+
 def debug():
     from analysis.bundle.clustering import cluster_by_topic
     from analysis.scraper.extract import ScrapeWebsite
@@ -63,12 +80,12 @@ def debug():
 
     compute_analysis(PostQuery(post_id="1", text=list_documents[0]))
 
-    # cluster_topics, idx_to_topic = cluster_by_topic(
-    #     "bert", list_documents, num_clusters=len(list_links)
-    # )
+    cluster_topics, idx_to_topic = cluster_by_topic(
+        "bert", list_documents, num_clusters=len(list_links)
+    )
 
-    # print(cluster_topics)
-    # print(idx_to_topic)
+    print(cluster_topics)
+    print(idx_to_topic)
 
     # from analysis.bundle.models.bert.train import create_news_dataset_model
 
