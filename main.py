@@ -50,7 +50,9 @@ def train_bert():
     from analysis.bundle.models.bert.constants import FILE_DIR
     from bertopic import BERTopic
 
-    prev_topic_model = load_model(os.path.join(os.path.join(FILE_DIR, "saved_models"), "bert_model_all_news.bin"))
+    prev_topic_model = load_model(
+        os.path.join(os.path.join(FILE_DIR, "saved_models"), "bert_model_all_news.bin")
+    )
 
     list_documents = get_social_news_data()
     cur_topic_model = create_model(list_documents)
