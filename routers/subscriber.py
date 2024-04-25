@@ -65,7 +65,7 @@ def process_sources(list_source_ids: list[str]):
 
         post_id = str(post.id)
         cur_documents = [documents[source_idx] for source_idx in list_sources]
-        text_content = ". ".join(cur_documents)
+        text_content = "\n ".join(cur_documents)
 
         post_query = PostQuery(text=text_content, post_id=post_id)
 
