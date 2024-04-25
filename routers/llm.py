@@ -1,16 +1,13 @@
 from fastapi import APIRouter, Body, HTTPException, Request, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 import requests
-from models.llm import SummaryQuery, Summary, Prompt, Title, TitleQuery
-from analysis.llm.ollama.calls import generate_text_from_ollama, parse_ollama_response
+from models.llm import Prompt, PostQuery, PostCompletion, PostAnalysis, Response
+from analysis.llm.ollama.calls import generate_text_from_ollama
 from utils.constants import DB_HOST
 
 
 llm_router = APIRouter(prefix="/llm")
-SUMMARY_PROMPT_PREFIX = (
-    "Summarize the following text in at most 2 paragraphs and return only the summary: "
-)
-TITLE_PROMPT_PREFIX = "Generate a title for the following text that is at most 10 words long and return only the title: "
+PROMPT_PREFIX = "You are a news provider whose job is to write a title and summary for news events. Provide a title and summary for the following event."
 
 
 @llm_router.post("/prompt")
@@ -19,66 +16,37 @@ async def compute_prompt_result(prompt: Prompt = Body(...)):
 
     if prompt_text == "":
         raise HTTPException(status_code=400, detail="Prompt is empty")
-    elif prompt_result := generate_text_from_ollama(prompt.prompt):
-        return {"message": "Prompt result generated", "result": prompt_result}
-    else:
-        raise HTTPException(status_code=500, detail="Failed to generate prompt result")
+
+    prompt_result = generate_text_from_ollama(prompt.prompt, prompt.query, Response)
+    return {
+        "message": "Prompt result generated",
+        "result": jsonable_encoder(prompt_result),
+    }
 
 
-@llm_router.post("/generate-summary")
+@llm_router.post("/generate-analysis")
 async def generate_summary(
     _: Request,
     background_tasks: BackgroundTasks,
-    summary_query: SummaryQuery = Body(...),
+    post_query: PostQuery = Body(...),
 ):
-    if summary_query.text == "":
-        return {"message": "Text to summarize is empty"}
+    if post_query.text == "":
+        return {"message": "Text to analyze is empty"}
 
-    background_tasks.add_task(start_summarization, summary_query)
-    return {"message": "Summarization in progress", "summary_id": summary_query.id}
-
-
-@llm_router.post("/generate-title")
-async def generate_title(
-    _: Request,
-    background_tasks: BackgroundTasks,
-    title_query: TitleQuery = Body(...),
-):
-    if title_query.text == "":
-        return {"message": "Text to make title is empty"}
-
-    background_tasks.add_task(start_title, title_query)
-    return {"message": "Making title in progress", "title_id": title_query.id}
+    background_tasks.add_task(compute_analysis, post_query)
+    return {"message": "Summarization in progress", "summary_id": post_query.id}
 
 
-def start_summarization(summary_query: SummaryQuery):
-    if summary_json := generate_text_from_ollama(
-        SUMMARY_PROMPT_PREFIX + summary_query.text
-    ):
-        summary_text = parse_ollama_response(summary_json)
-        summary = Summary(
-            id=str(summary_query.id),
-            post_id=summary_query.post_id,
-            summary=summary_text,
-        )
-        make_db_request("llm/add-summary", jsonable_encoder(summary))
-    else:
-        print("Failed to generate summary")
+def compute_analysis(post_query: PostQuery):
+    post_completion = generate_text_from_ollama(
+        prompt=PROMPT_PREFIX, query=post_query.text, response_dt=PostCompletion
+    )
 
+    post_analysis = PostAnalysis(
+        id=post_query.id, post_id=post_query.post_id, completion=post_completion
+    )
 
-def start_title(title_query: TitleQuery):
-    if title_json := generate_text_from_ollama(
-        SUMMARY_PROMPT_PREFIX + title_query.text
-    ):
-        title_text = parse_ollama_response(title_json)
-        title = Title(
-            id=str(title_query.id),
-            post_id=title_query.post_id,
-            title=title_text,
-        )
-        make_db_request("llm/add-title", jsonable_encoder(title))
-    else:
-        print("Failed to generate title")
+    make_db_request("llm/add-analysis", jsonable_encoder(post_analysis))
 
 
 def make_db_request(endpoint: str, data: dict):

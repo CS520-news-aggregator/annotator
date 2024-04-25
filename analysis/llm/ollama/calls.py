@@ -26,7 +26,8 @@ def generate_text_from_ollama(prompt: str, query: str, response_dt: BaseModel):
     )
     chain = prompt | llm | parser
 
-    return chain.invoke({"query": query})
+    return_dt = chain.invoke({"query": query})
+    return response_dt(**return_dt)
 
 
 def add_model_to_ollama():

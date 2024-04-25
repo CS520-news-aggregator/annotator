@@ -1,16 +1,17 @@
 from collections import defaultdict
 from typing import List
 
-from bertopic import BERTopic
 from analysis.bundle.models.base_model import BaseModel
 from analysis.bundle.models.bert.constants import BERT_MODEL_PATH
-from sentence_transformers import SentenceTransformer
 
-TOPIC_THRESHOLD = 0.5
+TOPIC_THRESHOLD = 0.3
 
 
 class BERTModel(BaseModel):
     def __init__(self, documents: List[str], num_clusters) -> None:
+        from bertopic import BERTopic
+        from sentence_transformers import SentenceTransformer
+        
         super().__init__(documents, num_clusters)
 
         embedding_model = SentenceTransformer("all-MiniLM-L6-v2")

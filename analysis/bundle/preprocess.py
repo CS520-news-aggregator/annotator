@@ -1,9 +1,13 @@
 import re
 import spacy
-import nltk
 from nltk.corpus import stopwords
 
-nlp = spacy.load("en_core_web_lg")
+spacy_preprocessor = None
+
+
+class SpacyPreprocessor:
+    def __init__(self) -> None:
+        self.nlp = spacy.load("en_core_web_lg")
 
 
 def remove_stopwords(doc):
@@ -18,8 +22,11 @@ def remove_punctuation(doc):
 
 
 def preprocess(doc):
+    if spacy_preprocessor is None:
+        spacy_preprocessor = SpacyPreprocessor()
+
     doc = remove_punctuation(doc)
     doc = remove_stopwords(doc)
-    doc = nlp(doc)
+    doc = spacy_preprocessor.nlp(doc)
     doc = [token.text for token in doc.ents if token.label_ != "CARDINAL"]
     return doc

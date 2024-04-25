@@ -45,8 +45,8 @@ async def root():
 def debug():
     from analysis.bundle.clustering import cluster_by_topic
     from analysis.scraper.extract import ScrapeWebsite
-    from routers.llm import start_summarization, start_title
-    from models.llm import SummaryQuery, TitleQuery
+    from routers.llm import compute_analysis
+    from models.llm import PostQuery
 
     list_links = [
         "https://www.cnn.com/2024/04/20/politics/mike-johnson-ukraine-aid-russia-zelensky-putin/index.html",
@@ -61,7 +61,7 @@ def debug():
     list_documents = [ScrapeWebsite(link).return_article() for link in list_links]
     list_documents = [doc for doc in list_documents if doc]
 
-    start_summarization(SummaryQuery(post_id="1", text=list_documents[0]))
+    compute_analysis(PostQuery(post_id="1", text=list_documents[0]))
 
     # cluster_topics, idx_to_topic = cluster_by_topic(
     #     "bert", list_documents, num_clusters=len(list_links)
@@ -83,7 +83,6 @@ def debug():
     # response_json = generate_text_from_ollama("The world is")
     # response = parse_ollama_response(response_json)
     # print(response)
-    ...
 
 
 if __name__ == "__main__":
