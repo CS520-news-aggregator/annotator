@@ -7,6 +7,7 @@ from models.source import Source
 from analysis.scraper.extract import ScrapeWebsite
 from analysis.bundle.clustering import cluster_by_topic
 from routers.llm import compute_analysis
+from analysis.llm.ollama.calls import ollama_keep_alive
 from models.llm import PostQuery
 
 subscriber_router = APIRouter(prefix="/subscriber")
@@ -32,6 +33,7 @@ def process_sources(list_source_ids: list[str]):
         return
 
     documents = []
+    ollama_keep_alive(-1)
 
     for source_id in tqdm(list_source_ids, desc="Processing sources"):
         source_data = get_data_from_db(source_id)
@@ -42,7 +44,6 @@ def process_sources(list_source_ids: list[str]):
             documents.append(article_content)
 
     print("Clustering sources")
-    import pdb; pdb.set_trace()
 
     cluster_topics, idx_to_topic = cluster_by_topic(
         MODEL_NAME, documents, num_clusters=len(list_source_ids)
@@ -71,3 +72,5 @@ def process_sources(list_source_ids: list[str]):
 
         if add_data_to_db(post) != -1:
             compute_analysis(post_query)
+
+    ollama_keep_alive(0)

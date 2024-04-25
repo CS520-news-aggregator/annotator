@@ -38,15 +38,14 @@ async def generate_summary(
 
 
 def compute_analysis(post_query: PostQuery):
-    post_completion = generate_text_from_ollama(
+    if post_completion := generate_text_from_ollama(
         prompt=PROMPT_PREFIX, query=post_query.text, response_dt=PostCompletion
-    )
+    ):
+        post_analysis = PostAnalysis(
+            id=post_query.id, post_id=post_query.post_id, completion=post_completion
+        )
 
-    post_analysis = PostAnalysis(
-        id=post_query.id, post_id=post_query.post_id, completion=post_completion
-    )
-
-    make_db_request("llm/add-analysis", jsonable_encoder(post_analysis))
+        make_db_request("llm/add-analysis", jsonable_encoder(post_analysis))
 
 
 def make_db_request(endpoint: str, data: dict):

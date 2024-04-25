@@ -10,6 +10,7 @@ from langchain_core.prompts import PromptTemplate
 
 OLLAMA_MODEL = "gemma"
 OLLAMA_TIMEOUT = 15
+OLLAMA_KEEP_ALIVE_TIMEOUT = 60 * 5
 
 
 def generate_text_from_ollama(prompt: str, query: str, response_dt: BaseModel):
@@ -22,11 +23,16 @@ def generate_text_from_ollama(prompt: str, query: str, response_dt: BaseModel):
     )
 
     llm = Ollama(
-        model=OLLAMA_MODEL, temperature=0, base_url=f"http://{OLLAMA_HOST}:11434"
+        base_url=f"http://{OLLAMA_HOST}:11434", model=OLLAMA_MODEL, temperature=0
     )
     chain = prompt | llm | parser
 
-    return_dt = chain.invoke({"query": query})
+    try:
+        return_dt = chain.invoke({"query": query})
+    except Exception as e:
+        print("Encountered exception when invoking LLM call", e)
+        return None
+
     return response_dt(**return_dt)
 
 
@@ -47,6 +53,26 @@ def add_model_to_ollama():
         print("Added model to Ollama")
     else:
         print("Failed to add model to Ollama,", response.json())
+
+
+def ollama_keep_alive(keep_alive_val: int):
+    ollama_url = f"http://{OLLAMA_HOST}:11434/api/generate"
+    print(f"Sending keep-alive message to OLLAMA with keep_alive={keep_alive_val}")
+
+    try:
+        response = requests.post(
+            ollama_url,
+            json={"model": OLLAMA_MODEL, "keep_alive": keep_alive_val},
+            timeout=OLLAMA_KEEP_ALIVE_TIMEOUT,
+        )
+    except requests.exceptions.RequestException as e:
+        print("Could not set keep alive for Ollama", e)
+        return
+
+    if response.status_code == 200:
+        print("Successfully set keep-alive for Ollama")
+    else:
+        print("Failed to set keep alive for Ollama,", response.json())
 
 
 if __name__ == "__main__":
