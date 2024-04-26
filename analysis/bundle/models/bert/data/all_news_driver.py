@@ -6,7 +6,7 @@ PATH_TO_DB = os.path.join(FILE_DIR, "all-the-news.db")
 
 
 # Source: https://components.one/datasets/all-the-news-articles-dataset/
-def get_data():
+def get_all_news_data():
     con = sqlite3.connect(PATH_TO_DB)
     cur = con.cursor()
 
