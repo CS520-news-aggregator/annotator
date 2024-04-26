@@ -33,7 +33,6 @@ def process_sources(list_source_ids: list[str]):
         return
 
     documents = []
-    ollama_keep_alive(-1)
 
     for source_id in tqdm(list_source_ids, desc="Processing sources"):
         source_data = get_data_from_db(source_id)
@@ -48,6 +47,8 @@ def process_sources(list_source_ids: list[str]):
     cluster_topics, idx_to_topic = cluster_by_topic(
         MODEL_NAME, documents, num_clusters=len(list_source_ids)
     )
+
+    ollama_keep_alive(-1)
 
     for cluster_idx, list_sources in tqdm(
         cluster_topics.items(),
