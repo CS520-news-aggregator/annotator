@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Body, HTTPException, Request, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
-import requests
+from utils.funcs import add_data_to_db
 from models.llm import Prompt, PostQuery, PostCompletion, PostAnalysis, Response
 from analysis.llm.ollama.calls import generate_text_from_ollama
-from utils.constants import DB_HOST
 
 
 llm_router = APIRouter(prefix="/llm")
@@ -45,18 +44,4 @@ def compute_analysis(post_query: PostQuery):
             id=post_query.id, post_id=post_query.post_id, completion=post_completion
         )
 
-        make_db_request("llm/add-analysis", jsonable_encoder(post_analysis))
-
-
-def make_db_request(endpoint: str, data: dict):
-    db_url = f"http://{DB_HOST}:8000/{endpoint}"
-
-    try:
-        response = requests.post(db_url, json=data)
-    except requests.exceptions.RequestException as e:
-        print(f"Could not make request to {db_url}", e)
-    else:
-        if response.status_code == 200:
-            print(f"Successfully made request to {db_url}")
-        else:
-            print(f"Failed to make request to {db_url},", response.json())
+        add_data_to_db("llm/add-analysis", post_analysis)

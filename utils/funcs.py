@@ -1,4 +1,5 @@
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
 import requests
 from utils.constants import DB_HOST
 
@@ -22,12 +23,12 @@ def subscribe_to_publisher(
         print("Failed to subscribe to publisher,", response.json())
 
 
-def add_data_to_db(post_data):
-    db_url = f"http://{DB_HOST}:8000/annotator/add-post"
+def add_data_to_db(endpoint: str, data_model: BaseModel) -> int | str:
+    db_url = f"http://{DB_HOST}:8000/{endpoint}"
     encountered_error = False
 
     try:
-        response = requests.post(db_url, json=jsonable_encoder(post_data), timeout=5)
+        response = requests.post(db_url, json=jsonable_encoder(data_model), timeout=5)
     except requests.exceptions.RequestException:
         print(f"Could not send data to database service due to timeout")
         encountered_error = True
@@ -36,16 +37,18 @@ def add_data_to_db(post_data):
             print(f"Received status code {response.status_code} from database service")
             encountered_error = True
 
-    resp_json = response.json() if not encountered_error else None
-    return -1 if encountered_error else resp_json["post_id"]
+    return -1 if encountered_error else "Successfully added data to database"
 
 
-def get_data_from_db(source_id):
-    db_url = f"http://{DB_HOST}:8000/aggregator/get-aggregation?source_id={source_id}"
+def get_data_from_db(endpoint: str, params: dict = None):
+    if params is None:
+        params = {}
+
+    db_url = f"http://{DB_HOST}:8000/{endpoint}"
     encountered_error = False
 
     try:
-        response = requests.get(db_url, timeout=5)
+        response = requests.get(db_url, params=params, timeout=5)
     except requests.exceptions.RequestException:
         print(f"Could not get data from database service due to timeout")
         encountered_error = True
