@@ -88,6 +88,7 @@ def process_sources(list_source_ids: list[str]):
 
     ollama_keep_alive(0)
 
+    # FIXME: user posts empty for new users upon registration
     user_recommendations = get_all_user_recommendations(list_posts)
 
     for user_id, user_recomm_posts in tqdm(
