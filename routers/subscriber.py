@@ -82,7 +82,7 @@ def process_sources(list_source_ids: list[str]):
 
         post_query = PostQuery(text=text_content, post_id=post_id)
 
-        if add_data_to_db("annotator/add-post", post) == -1:
+        if add_data_to_db("annotator/add-post", post) != -1:
             compute_analysis(post_query)
             list_posts.append(post)
 
